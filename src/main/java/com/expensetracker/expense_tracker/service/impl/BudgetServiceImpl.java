@@ -1,8 +1,9 @@
 package com.expensetracker.expense_tracker.service.impl;
-
+import com.expensetracker.expense_tracker.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.expensetracker.expense_tracker.dto.BudgetRequestDTO;
+import com.expensetracker.expense_tracker.dto.BudgetResponseDTO;
 import com.expensetracker.expense_tracker.entity.Budget;
 import com.expensetracker.expense_tracker.entity.User;
 import com.expensetracker.expense_tracker.repository.BudgetRepository;
@@ -42,6 +43,23 @@ public class BudgetServiceImpl implements BudgetService {
         budget.setUser(currentUser);
 
         budgetRepository.save(budget);
+    }
+    
+    @Override
+    public BudgetResponseDTO getBudget() {
+
+        // 1️⃣ Get logged-in user
+        User currentUser = userService.getLoggedInUser();
+
+        // 2️⃣ Fetch budget by user
+        Budget budget = budgetRepository.findByUser(currentUser)
+                .orElseThrow(() -> new ResourceNotFoundException("Budget not set"));
+
+        // 3️⃣ Map entity → DTO
+        BudgetResponseDTO dto = new BudgetResponseDTO();
+        dto.setSpentAmount(budget.getAmount());
+
+        return dto;
     }
 
 }
