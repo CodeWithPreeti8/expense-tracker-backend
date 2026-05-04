@@ -1,4 +1,4 @@
-package com.expensetracker.expense_tracker.service;
+package com.expensetracker.expense_tracker.service.impl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -10,6 +10,7 @@ import com.expensetracker.expense_tracker.entity.Role;
 import com.expensetracker.expense_tracker.entity.User;
 import com.expensetracker.expense_tracker.repository.UserRepository;
 import com.expensetracker.expense_tracker.security.JwtTokenProvider;
+import com.expensetracker.expense_tracker.service.AuthService;
 import com.expensetracker.expense_tracker.service.dto.RegisterRequestDTO;
 
 @Service

@@ -13,12 +13,15 @@ import com.expensetracker.expense_tracker.entity.Budget;
 import com.expensetracker.expense_tracker.entity.Category;
 import com.expensetracker.expense_tracker.entity.Expense;
 import com.expensetracker.expense_tracker.entity.User;
+import com.expensetracker.expense_tracker.exception.BadRequestException;
+import com.expensetracker.expense_tracker.exception.CustomAccessDeniedException;
 import com.expensetracker.expense_tracker.exception.ResourceNotFoundException;
 import com.expensetracker.expense_tracker.repository.BudgetRepository;
 import com.expensetracker.expense_tracker.repository.CategoryRepository;
 import com.expensetracker.expense_tracker.repository.ExpenseRepository;
 import com.expensetracker.expense_tracker.repository.UserRepository;
 import com.expensetracker.expense_tracker.security.CustomUserDetails;
+import com.expensetracker.expense_tracker.service.AsyncService;
 import com.expensetracker.expense_tracker.service.ExpenseService;
 import com.expensetracker.expense_tracker.service.UserService;
 
@@ -37,13 +40,15 @@ public class ExpenseServiceImpl implements ExpenseService{
 	private final UserRepository userRepository;
 	private final UserService userService;
 	private final BudgetRepository budgetRepository;
+	private final AsyncService asyncService;
 	
-	public ExpenseServiceImpl(ExpenseRepository expenseRepository,CategoryRepository categoryRepository,UserRepository userRepository,UserService userService, BudgetRepository budgetRepository) {
+	public ExpenseServiceImpl(ExpenseRepository expenseRepository,CategoryRepository categoryRepository,UserRepository userRepository,UserService userService, BudgetRepository budgetRepository,AsyncService asyncService) {
 		this.expenseRepository = expenseRepository;
 		this.categoryRepository = categoryRepository;
 		this.userRepository = userRepository;
 		this.userService = userService;
 		this.budgetRepository = budgetRepository;
+		this.asyncService = asyncService;
 	}
 	@Override
 	public ExpenseResponseDTO cretaeExpense(ExpenseRequestDTO requestDTO) {
@@ -67,10 +72,10 @@ public class ExpenseServiceImpl implements ExpenseService{
 		
 		// 5️⃣ Budget validation
 		if (totalSpent + requestDTO.getAmount() > budget.getAmount()) {
-		    throw new RuntimeException(
-		            "Budget exceeded. Remaining amount: " 
-		            + (budget.getAmount() - totalSpent)
-		    );
+			throw new BadRequestException(
+				    "Budget exceeded. Remaining amount: " 
+				    + (budget.getAmount() - totalSpent)
+				);
 		}
 		
 		// 1️⃣ Fetch Category from DB using categoryId
@@ -97,6 +102,9 @@ public class ExpenseServiceImpl implements ExpenseService{
 
 	    // 4️⃣ Save Expense
 	    Expense savedExpense = expenseRepository.save(expense);
+	    
+	    //Call Async Method
+	    asyncService.handleExpenseCreated(currentUser.getId(), requestDTO.getAmount());
 
 	    // 5️⃣ Map Entity → ResponseDTO
 	    ExpenseResponseDTO response = new ExpenseResponseDTO();
@@ -117,7 +125,7 @@ public class ExpenseServiceImpl implements ExpenseService{
 		
 		// 3️⃣ Ownership check 🔐
 		if (!expense.getUser().getId().equals(currentUser.getId())) {
-	        throw new RuntimeException("You are not allowed to view this expense");
+			throw new CustomAccessDeniedException("You are not allowed to view this expense");
 	    }
 			//MAP to DTO
 		ExpenseResponseDTO response = new ExpenseResponseDTO();

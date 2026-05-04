@@ -7,6 +7,7 @@ import com.expensetracker.expense_tracker.dto.BudgetResponseDTO;
 import com.expensetracker.expense_tracker.entity.Budget;
 import com.expensetracker.expense_tracker.entity.User;
 import com.expensetracker.expense_tracker.repository.BudgetRepository;
+import com.expensetracker.expense_tracker.repository.ExpenseRepository;
 import com.expensetracker.expense_tracker.service.BudgetService;
 import com.expensetracker.expense_tracker.service.UserService;
 
@@ -15,11 +16,13 @@ public class BudgetServiceImpl implements BudgetService {
 	
 	private final BudgetRepository budgetRepository;
     private final UserService userService;
+    private final ExpenseRepository expenseRepository;
 
     public BudgetServiceImpl(BudgetRepository budgetRepository,
-                             UserService userService) {
+                             UserService userService, ExpenseRepository expenseRepository) {
         this.budgetRepository = budgetRepository;
         this.userService = userService;
+        this.expenseRepository = expenseRepository;
     }
 
     @Override
@@ -54,10 +57,24 @@ public class BudgetServiceImpl implements BudgetService {
         // 2️⃣ Fetch budget by user
         Budget budget = budgetRepository.findByUser(currentUser)
                 .orElseThrow(() -> new ResourceNotFoundException("Budget not set"));
+     
+        // 3️⃣ Extract month & year
+        int month = budget.getMonth();
+        int year = budget.getYear();
+        
+     // 4️⃣ Calculate total spent
+        Double totalSpent = expenseRepository
+                .getTotalExpenseForMonth(currentUser, month, year);
+        
+     // 5️⃣ Calculate remaining
+        Double remaining = budget.getAmount() - totalSpent;
 
-        // 3️⃣ Map entity → DTO
+        
+     // 6️⃣ Map to DTO
         BudgetResponseDTO dto = new BudgetResponseDTO();
-        dto.setSpentAmount(budget.getAmount());
+        dto.setTotalBudget(budget.getAmount());
+        dto.setSpentAmount(totalSpent);
+        dto.setRemainingBudget(remaining);
 
         return dto;
     }

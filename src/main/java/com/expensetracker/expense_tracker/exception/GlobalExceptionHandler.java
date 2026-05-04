@@ -1,13 +1,10 @@
 package com.expensetracker.expense_tracker.exception;
-
-import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.naming.AuthenticationException;
 
-import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -41,7 +38,7 @@ public class GlobalExceptionHandler {
             BadRequestException ex,
             HttpServletRequest request) {
 
-    	ErrorResponse error = new ErrorResponse(
+        ErrorResponse error = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
                 ex.getMessage(),
@@ -69,11 +66,12 @@ public class GlobalExceptionHandler {
     }
     
     // 4) 403 - Forbidden (ownership check fail)
-    @ExceptionHandler(AccessDeniedException.class)
+    @ExceptionHandler(CustomAccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDenied(
-            AccessDeniedException ex, HttpServletRequest request) {
+            CustomAccessDeniedException ex,
+            HttpServletRequest request) {
 
-    	ErrorResponse error = new ErrorResponse(
+        ErrorResponse error = new ErrorResponse(
                 HttpStatus.FORBIDDEN.value(),
                 "ACCESS_DENIED",
                 ex.getMessage(),

@@ -40,6 +40,7 @@ public class ExpenseController {
 	@GetMapping("/expenses")
 	public PaginationResponseDTO getExpenses(@RequestParam(defaultValue = "0") int page,
 	        @RequestParam(defaultValue = "5") int size) {
+		System.out.println("Page: " + page + " Size: " + size);
 
 	    return expenseService.getExpense(page, size);
 	}
