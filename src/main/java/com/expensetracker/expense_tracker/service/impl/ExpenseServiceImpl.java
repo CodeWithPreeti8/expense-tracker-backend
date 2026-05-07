@@ -51,7 +51,7 @@ public class ExpenseServiceImpl implements ExpenseService{
 		this.asyncService = asyncService;
 	}
 	@Override
-	public ExpenseResponseDTO cretaeExpense(ExpenseRequestDTO requestDTO) {
+	public ExpenseResponseDTO createExpense(ExpenseRequestDTO requestDTO) {
 											//Budget must be checked before saving expense
 		// 1️⃣ Get logged-in user
 		User currentUser = userService.getLoggedInUser();

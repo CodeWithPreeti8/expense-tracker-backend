@@ -13,7 +13,7 @@ import jakarta.validation.Valid;
 
 public interface ExpenseService {
 	
-	ExpenseResponseDTO cretaeExpense(ExpenseRequestDTO requestDTO);
+	ExpenseResponseDTO createExpense(ExpenseRequestDTO requestDTO);
 	ExpenseResponseDTO getExpenseById(Long id);
 	PaginationResponseDTO getExpense(int page, int size);
 	ExpenseResponseDTO updateExpense( Long id,ExpenseRequestDTO requestDTO);

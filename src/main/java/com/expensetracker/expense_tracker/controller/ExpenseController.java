@@ -29,7 +29,7 @@ public class ExpenseController {
 	@PostMapping("/expenses")
 	public ExpenseResponseDTO createExpense(@Valid @RequestBody ExpenseRequestDTO requestDTO) {
 		System.out.println("CategoryId = " + requestDTO.getCategoryId());
-		return expenseService.cretaeExpense(requestDTO);
+		return expenseService.createExpense(requestDTO);
 	}
 	
 	@GetMapping("/expenses/{id}")
